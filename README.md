@@ -15,8 +15,10 @@
 
 Generate a personalized "Spotify Wrapped"-style summary of your [Amp Code](https://ampcode.com) usage.
 
+[![npm version](https://img.shields.io/npm/v/amp-wrapped.svg)](https://www.npmjs.com/package/amp-wrapped)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Bun](https://img.shields.io/badge/Bun-%23000000.svg?logo=bun&logoColor=white)](https://bun.sh)
+[![GitHub](https://img.shields.io/github/stars/ajanraj/amp-wrapped?style=social)](https://github.com/ajanraj/amp-wrapped)
 
 <img src="./assets/images/amp-wrapped-cover.png" alt="Amp Wrapped Example" width="600" />
 
