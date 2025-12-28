@@ -2,9 +2,10 @@
 
 import * as p from "@clack/prompts";
 import { join } from "node:path";
+import os from "node:os";
 import { parseArgs } from "node:util";
 
-import { checkAmpDataExists } from "./collector";
+import { checkAmpDataExists, getAmpDataPath } from "./collector";
 import { calculateAmpStats } from "./stats";
 import { generateAmpImage } from "./image/generator";
 import { displayInTerminal, getTerminalName } from "./terminal/display";
@@ -75,7 +76,7 @@ async function main() {
 
   const dataExists = await checkAmpDataExists();
   if (!dataExists) {
-    p.cancel("Amp data not found in ~/.local/share/amp\n\nMake sure you have used Amp at least once.");
+    p.cancel(`Amp data not found at ${getAmpDataPath()}\n\nMake sure you have used Amp at least once.`);
     process.exit(0);
   }
 
@@ -141,10 +142,10 @@ async function main() {
     p.log.info("You can save the image to disk instead.");
   }
 
-  const defaultPath = join(process.env.HOME || "~", filename);
+  const defaultPath = join(os.homedir(), filename);
 
   const shouldSave = await p.confirm({
-    message: `Save image to ~/${filename}?`,
+    message: `Save image to ${defaultPath}?`,
     initialValue: true,
   });
 
@@ -210,21 +211,29 @@ function generateTweetUrl(stats: AmpCodeStats): string {
 
 async function openUrl(url: string): Promise<boolean> {
   const platform = process.platform;
-  let command: string;
-
-  if (platform === "darwin") {
-    command = "open";
-  } else if (platform === "win32") {
-    command = "start";
-  } else {
-    command = "xdg-open";
-  }
 
   try {
-    const proc = Bun.spawn([command, url], {
-      stdout: "ignore",
-      stderr: "ignore",
-    });
+    let proc;
+
+    if (platform === "darwin") {
+      proc = Bun.spawn(["open", url], {
+        stdout: "ignore",
+        stderr: "ignore",
+      });
+    } else if (platform === "win32") {
+      // 'start' is a shell built-in on Windows, must use cmd.exe
+      // Empty string is the window title, URL must be quoted for special chars like &
+      proc = Bun.spawn(["cmd.exe", "/c", `start "" "${url}"`], {
+        stdout: "ignore",
+        stderr: "ignore",
+      });
+    } else {
+      proc = Bun.spawn(["xdg-open", url], {
+        stdout: "ignore",
+        stderr: "ignore",
+      });
+    }
+
     await proc.exited;
     return proc.exitCode === 0;
   } catch {

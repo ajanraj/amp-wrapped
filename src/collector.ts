@@ -4,7 +4,17 @@ import { readFile, readdir, stat } from "node:fs/promises";
 import { join } from "node:path";
 import os from "node:os";
 
-const AMP_DATA_PATH = join(os.homedir(), ".local", "share", "amp");
+/**
+ * Get the Amp data directory path for the current platform.
+ * Amp uses XDG-style paths on all platforms:
+ * - macOS/Linux: ~/.local/share/amp
+ * - Windows: %USERPROFILE%\.local\share\amp
+ */
+export function getAmpDataPath(): string {
+  return join(os.homedir(), ".local", "share", "amp");
+}
+
+const AMP_DATA_PATH = getAmpDataPath();
 const AMP_THREADS_PATH = join(AMP_DATA_PATH, "threads");
 const AMP_HISTORY_PATH = join(AMP_DATA_PATH, "history.jsonl");
 
