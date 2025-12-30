@@ -1,6 +1,6 @@
 {
   "name": "amp-wrapped",
-  "version": "1.0.0",
+  "version": "1.0.5",
   "description": "Generate a personalized Spotify Wrapped-style summary of your Amp Code usage",
   "keywords": [
     "amp",
@@ -28,7 +28,7 @@
     "start": "bun src/index.ts",
     "dev": "bun run --watch src/index.ts",
     "build": "tsgo --noEmit && bun run scripts/build.ts",
-    "publish": "bun run scripts/publish.ts",
+    "publish:all": "bun run scripts/publish.ts",
     "release": "semantic-release",
     "clean": "rm -rf dist"
   },

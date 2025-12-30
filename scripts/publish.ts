@@ -98,6 +98,14 @@ console.log("✅ Main package prepared");
 // Publish platform packages
 console.log("\n📤 Publishing platform packages...");
 
+const PUBLISH_DELAY_MS = 10_000; // 10 seconds between publishes to avoid rate limits
+
+async function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+let publishCount = 0;
+
 for (const [name] of Object.entries(binaries)) {
   const targetPath = path.join(dir, "dist", name.replace(pkg.name, targetpackageName));
 
@@ -114,8 +122,14 @@ for (const [name] of Object.entries(binaries)) {
   } else if (await isPublished(name, version)) {
     console.log(`⏭️  Skipping ${name} (already published)`);
   } else {
+    // Add delay between publishes to avoid rate limiting
+    if (publishCount > 0) {
+      console.log(`   ⏳ Waiting ${PUBLISH_DELAY_MS / 1000}s before next publish...`);
+      await sleep(PUBLISH_DELAY_MS);
+    }
     await $`npm publish --access public`.cwd(targetPath);
     console.log(`✅ Published ${name}`);
+    publishCount++;
   }
 }
 
@@ -129,6 +143,11 @@ if (dryRun) {
 } else if (await isPublished(pkg.name, version)) {
   console.log(`⏭️  Skipping ${pkg.name} (already published)`);
 } else {
+  // Add delay before main package if we published platform packages
+  if (publishCount > 0) {
+    console.log(`   ⏳ Waiting ${PUBLISH_DELAY_MS / 1000}s before main package...`);
+    await sleep(PUBLISH_DELAY_MS);
+  }
   await $`npm publish --access public`.cwd(mainPackagePath);
   console.log(`✅ Published ${pkg.name}`);
 }
